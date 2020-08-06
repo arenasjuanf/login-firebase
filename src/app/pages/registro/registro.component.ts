@@ -1,6 +1,8 @@
 import { Component, OnInit } from '@angular/core';
 import { usuarioModel } from 'src/app/models/usuario.model';
 import { NgForm } from '@angular/forms';
+import { AuthService } from 'src/app/services/auth.service';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-registro',
@@ -10,8 +12,10 @@ import { NgForm } from '@angular/forms';
 export class RegistroComponent implements OnInit {
 
   usuario: usuarioModel;
+  recordarme =false;
+  constructor( private auth: AuthService, private router : Router) {
 
-  constructor() { }
+  }
 
   ngOnInit() {
     this.usuario = new usuarioModel();
@@ -19,7 +23,20 @@ export class RegistroComponent implements OnInit {
 
   onSubmit(formulario: NgForm){
     if(formulario.valid){
-      console.log(formulario);
+      this.auth.signUp(this.usuario).subscribe(
+        result => { 
+
+          if (this.recordarme) {
+            localStorage.setItem('email', this.usuario.email);
+          } else {
+            localStorage.removeItem('email');
+          }
+
+          this.router.navigateByUrl('/home');
+
+        },
+        error  => { console.log(error.error.error.message)}
+      )
     }
   }
 
